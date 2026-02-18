@@ -1,0 +1,15 @@
+django
+djangorestframework
+django-cors-headers
+pypdf
+pymupdf
+pdf2docx
+pdfplumber
+fpdf2
+python-pptx
+pandas
+openpyxl
+img2pdf
+pillow
+pytesseract
+reportlab
