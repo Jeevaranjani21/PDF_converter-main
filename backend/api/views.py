@@ -378,35 +378,14 @@ def protect_pdf(request):
     if permissions_arg:
         perms = [p.strip() for p in permissions_arg.split(",") if p.strip()]
         if perms:
-            # Start with all restrictions (0)? Or start with all allowed?
-            # Usually strict protection means we deny everything except what is listed.
-            # But the user might want "Lock" (just open password) vs "Protect" (restrict).
-            
-            # Let's construct the flag.
-            current_flag = UserAccessPermissions.PRINT | UserAccessPermissions.MODIFY | \
-                           UserAccessPermissions.EXTRACT | UserAccessPermissions.ADD_OR_MODIFY | \
-                           UserAccessPermissions.FILL_FORM_FIELDS | UserAccessPermissions.EXTRACT_TEXT_AND_GRAPHICS | \
-                           UserAccessPermissions.ASSEMBLE_DOC | UserAccessPermissions.PRINT_TO_REPRESENTATION
-            
-            # If the user sends specific restrictions, we should probably start with 0 (restricted) and add allowed?
-            # Or is the UI "Allow Printing"? usually yes.
-            # Let's assume the UI sends "actions allowed".
-            
-            # If the user provides a password but NO permissions, defaults usually allow everything for the owner, 
-            # and the user password opens it.
-            # If we want to RESTRICT, we need an OWNER password (separate from user).
-            
-            # Simplification: We use the SAME password for user and owner if only one is provided,
-            # OR we hardcode an owner password if we want to enforce restrictions on the user.
-            
-            # Let's build the allowed permissions based on input
+            # Use raw PDF spec integer bit flags (avoids enum type issues)
+            # PDF spec: bit3=print(4), bit4=modify(8), bit5=copy(16), bit6=annotate(32)
             p_flags = 0
-            if "print" in perms: p_flags |= UserAccessPermissions.PRINT
-            if "copy" in perms: p_flags |= UserAccessPermissions.EXTRACT
-            if "modify" in perms: p_flags |= UserAccessPermissions.MODIFY
-            if "annotate" in perms: p_flags |= UserAccessPermissions.ADD_OR_MODIFY
-            if "extract" in perms: p_flags |= UserAccessPermissions.EXTRACT_TEXT_AND_GRAPHICS
-            
+            if "print" in perms:    p_flags |= 4
+            if "modify" in perms:   p_flags |= 8
+            if "copy" in perms:     p_flags |= 16
+            if "annotate" in perms: p_flags |= 32
+            if "extract" in perms:  p_flags |= 16
             permission_flags = p_flags
 
     try:
