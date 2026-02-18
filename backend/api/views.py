@@ -374,9 +374,7 @@ def protect_pdf(request):
     # bit 6: modify annotations
     # ...
     
-    # If pypdf is installed, let's try to import the Enum
-    from pypdf.constants import UserAccessPermissions
-    
+
     if permissions_arg:
         perms = [p.strip() for p in permissions_arg.split(",") if p.strip()]
         if perms:
