@@ -374,8 +374,8 @@ def protect_pdf(request):
             modify_other=("modify" in perms or not permissions_arg),
             modify_annotation=("annotate" in perms or not permissions_arg),
             extract=("copy" in perms or "extract" in perms or not permissions_arg),
-            assemble=("modify" in perms or not permissions_arg),
-            form_filling=("annotate" in perms or not permissions_arg),
+            modify_assembly=("modify" in perms or not permissions_arg),
+            modify_form=("annotate" in perms or not permissions_arg),
             accessibility=True,
         )
 
