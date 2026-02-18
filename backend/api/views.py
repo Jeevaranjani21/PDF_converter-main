@@ -351,75 +351,50 @@ def protect_pdf(request):
     POST multipart:
       file: PDF
       password: str
-      permissions: list of strings (print, copy, modify, annotate, extract)
-        JSON array or comma-separated
+      permissions: comma-separated (print, copy, modify, annotate, extract)
     """
     if "file" not in request.FILES:
         return JsonResponse({"error": "No file uploaded"}, status=400)
-    
+
     pdf_file = request.FILES["file"]
     password = request.POST.get("password", "")
-    
-    # Permissions parsing
     permissions_arg = request.POST.get("permissions", "")
-    permission_flags = None
-    
-    # Map friendly names to pypdf UserAccessPermissions (or integers)
-    # pypdf < 3.0 uses int flags. pypdf >= 3.0 recommends UserAccessPermissions
-    # We will use integer flags for broad compatibility or simple bitwise operations if pypdf is recent.
-    # Standard PDF 1.4 permissions:
-    # bit 3: print
-    # bit 4: modify
-    # bit 5: copy/extract
-    # bit 6: modify annotations
-    # ...
-    
-
-    if permissions_arg:
-        perms = [p.strip() for p in permissions_arg.split(",") if p.strip()]
-        if perms:
-            # Use raw PDF spec integer bit flags (avoids enum type issues)
-            # PDF spec: bit3=print(4), bit4=modify(8), bit5=copy(16), bit6=annotate(32)
-            p_flags = 0
-            if "print" in perms:    p_flags |= 4
-            if "modify" in perms:   p_flags |= 8
-            if "copy" in perms:     p_flags |= 16
-            if "annotate" in perms: p_flags |= 32
-            if "extract" in perms:  p_flags |= 16
-            permission_flags = p_flags
 
     try:
-        reader = PdfReader(pdf_file)
-        writer = PdfWriter()
-        for page in reader.pages:
-            writer.add_page(page)
-        
-        # encrypt(user_pwd, owner_pwd, permissions_flag=...)
-        # If we have permissions, we MUST have an owner password different from user password 
-        # to effectively restrict the user. If we just set user password, they map to owner usually.
-        # But if we just want to lock, we set both.
-        
-        # If no password provided but permissions are set, we need a dummy owner password so the file opens without password but uses permissions?
-        # Standard PDF consumers (Adobe) treat "Empty user password" as "Opened" but valid permissions apply.
-        
-        user_pwd = password
-        owner_pwd = password if password else "owner123"  # Fallback if only permissions are requested
+        import pikepdf
 
-        encrypt_kwargs = {
-            "user_password": user_pwd,
-            "owner_password": owner_pwd,
-        }
-        if permission_flags is not None:
-            encrypt_kwargs["permissions_flag"] = permission_flags
+        pdf_bytes = pdf_file.read()
+        pdf = pikepdf.open(BytesIO(pdf_bytes))
 
-        writer.encrypt(**encrypt_kwargs)
-        
+        # Build permissions object
+        perms = [p.strip() for p in permissions_arg.split(",") if p.strip()]
+        allow = pikepdf.Permissions(
+            print_lowres=("print" in perms or not permissions_arg),
+            print_highres=("print" in perms or not permissions_arg),
+            modify_other=("modify" in perms or not permissions_arg),
+            modify_annotation=("annotate" in perms or not permissions_arg),
+            extract=("copy" in perms or "extract" in perms or not permissions_arg),
+            assemble=("modify" in perms or not permissions_arg),
+            form_filling=("annotate" in perms or not permissions_arg),
+            accessibility=True,
+        )
+
         out = BytesIO()
-        writer.write(out)
+        # Use same password for user and owner if only one provided
+        owner_pass = password if password else "owner_default_123"
+        pdf.save(
+            out,
+            encryption=pikepdf.Encryption(
+                user=password,
+                owner=owner_pass,
+                allow=allow,
+            )
+        )
         out.seek(0)
         return FileResponse(out, as_attachment=True, filename="protected.pdf")
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
 
 
 @api_view(["POST"])
