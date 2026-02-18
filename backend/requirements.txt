@@ -11,3 +11,5 @@ pandas
 openpyxl
 img2pdf
 pillow
+pytesseract
+reportlab

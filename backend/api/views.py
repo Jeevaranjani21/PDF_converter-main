@@ -18,7 +18,7 @@ import subprocess
 try:
     import pytesseract
 except ImportError:
-    pytesseract = None, Transformation
+    pytesseract = None
 from reportlab.pdfgen import canvas
 from reportlab.lib import pagesizes
 from reportlab.lib import colors
@@ -471,10 +471,6 @@ def unlock_pdf(request):
         writer.write(out)
         out.seek(0)
         return FileResponse(out, as_attachment=True, filename="unlocked.pdf")
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
-
-
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
