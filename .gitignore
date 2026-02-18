@@ -1,0 +1,79 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.so
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env
+
+# Node / React
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+
+# React build output
+frontend/build/
+
+# Temporary / output files
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+
+# PDF temp/output files (generated at runtime)
+backend/temp/
+backend/output/
+backend/uploads/
+backend/converted/
+backend/media/
+
+# Test/sample PDFs at root level
+AmazonShipping.pdf
+test_verify.pdf
+test.pdf
+
+# Backend generated/temp output files
+backend/converted.txt
+backend/converted_text.pdf
+backend/dummy.txt
+backend/images_converted.pdf
+backend/test_image.png
+backend/test_conversions.py
+backend/verify_features.py
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
