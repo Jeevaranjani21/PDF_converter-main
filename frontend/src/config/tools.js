@@ -95,25 +95,6 @@ export const CATEGORIES = [
     ],
   },
 
-  {
-    id: "ai-pdf",
-    title: "AI PDF",
-    subtitle: "Smart features like summarize and translate.",
-    tools: [
-      { id: "summarize", name: "Summarize PDF", desc: "Summarize the PDF into key points and sections." },
-      { id: "translate", name: "Translate PDF", desc: "Translate PDF content into your selected language." },
-    ],
-  },
-
-  // OPTIONAL LATER
-  {
-    id: "extras",
-    title: "Extras",
-    subtitle: "Optional tools (we will add later).",
-    tools: [
-      { id: "image-tools", name: "Image Tools", desc: "Compress/convert/edit images." },
-      { id: "text-tools", name: "Text Tools", desc: "Format/clean/convert text files." },
-    ],
-  },
+  
 ];
 
